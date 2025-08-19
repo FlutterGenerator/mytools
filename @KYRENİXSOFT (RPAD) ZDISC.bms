@@ -1,0 +1,118 @@
+//TG @RPADCOURSE
+//DV @KYRENİXSOFT
+
+get FULL_SIZE asize
+comtype zstd
+
+math FILE_COUNT = 0
+math DICT_COUNT = 0
+set OFFSET 0
+
+do
+    findloc OFFSET binary "\x28\xb5\x2f\xfd"
+    if OFFSET == -1
+        break
+    endif
+
+    goto OFFSET
+    savepos START_OFFSET
+
+    idstring "\x28\xb5\x2f\xfd"
+    getbits Dictionary_ID_flag 2
+    getbits Content_Checksum_flag 1
+    getbits Reserved_bit 1
+    getbits Unused_bit 1
+    getbits Single_Segment_flag 1
+    getbits Frame_Content_Size_flag 2
+
+    if Single_Segment_flag == 0
+        get Window_Descriptor byte
+    endif
+
+    if Dictionary_ID_flag == 0
+        math Dictionary_ID = 0
+    elif Dictionary_ID_flag == 1
+        get Dictionary_ID byte
+    elif Dictionary_ID_flag == 2
+        get Dictionary_ID short
+    elif Dictionary_ID_flag == 3
+        get Dictionary_ID long
+    endif
+
+    if Dictionary_ID != 0
+        savepos DICT_OFFSET
+        get DICT_SIZE short
+        string DICT_FILENAME = "dict_"
+        string DICT_COUNT p "%05d" DICT_COUNT
+        string DICT_FILENAME += DICT_COUNT
+        string DICT_FILENAME += ".dat"
+        log DICT_FILENAME DICT_OFFSET DICT_SIZE
+        math DICT_OFFSET += DICT_SIZE
+        math DICT_OFFSET += 2
+        math OFFSET = DICT_OFFSET
+        math DICT_COUNT += 1
+        continue
+    endif
+
+    if Frame_Content_Size_flag == 0
+        if Single_Segment_flag == 0
+            math Frame_Content_Size = 0
+        else
+            get Frame_Content_Size byte
+        endif
+    elif Frame_Content_Size_flag == 1
+        get Frame_Content_Size short
+        math Frame_Content_Size += 256
+    elif Frame_Content_Size_flag == 2
+        get Frame_Content_Size long
+    elif Frame_Content_Size_flag == 3
+        get Frame_Content_Size longlong
+    endif
+
+    savepos COMPRESSED_BLOCK_START
+    set CURRENT_BLOCK_OFFSET COMPRESSED_BLOCK_START
+
+    do
+        getbits Last_Block 1
+        getbits Block_Type 2
+        getbits Block_Size 21
+
+        if Block_Type == 1
+            goto 1 0 SEEK_CUR
+            math CURRENT_BLOCK_OFFSET + 1
+        else
+            goto Block_Size 0 SEEK_CUR
+            math CURRENT_BLOCK_OFFSET + Block_Size
+        endif
+
+        if Content_Checksum_flag != 0
+            get Content_Checksum long
+            math CURRENT_BLOCK_OFFSET + 4
+        endif
+
+    while Last_Block == 0
+
+    savepos COMPRESSED_BLOCK_END
+    math COMPRESSED_SIZE = COMPRESSED_BLOCK_END
+    math COMPRESSED_SIZE -= START_OFFSET
+
+    string FILE_DIR = "file_"
+    math DIR_NUM = FILE_COUNT / 1000
+    string DIR_NUM p "%02d" DIR_NUM
+    string FILE_DIR += DIR_NUM
+
+    string FILE_NAME = "output_"
+    string FILE_COUNT p "%08d" FILE_COUNT
+    string FILE_NAME += FILE_COUNT
+    string FILE_NAME += ".dat"
+
+    string FULL_FILE_NAME = FILE_DIR
+    string FULL_FILE_NAME += "/"
+    string FULL_FILE_NAME += FILE_NAME
+
+    clog FULL_FILE_NAME START_OFFSET COMPRESSED_SIZE Frame_Content_Size
+
+    math FILE_COUNT += 1
+    math OFFSET = COMPRESSED_BLOCK_END
+
+while OFFSET < FULL_SIZE
