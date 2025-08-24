@@ -79,7 +79,7 @@ else
     endian guess VERSION
 	
 	goto SEEK_SET
-	findloc OFFSET binary "\x73\x79\x79\x79\x57\x57\x56\x57\x57" 0 ""
+	findloc OFFSET binary "\x73\x79\x79\x79\x57\x57\x56\x57\x57" 0 "" 
 	#set SIZE longlong 0
 	#xmath SIZE "OFFSET - MAGIC_OFF - 17"
 

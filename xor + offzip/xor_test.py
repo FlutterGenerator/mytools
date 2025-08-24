@@ -54,7 +54,7 @@ def process_file(input_file):
 
 def main():
     """Main function to handle file decryption process"""
-    input_file = "pakchunk02-Table-Android_ASTC.pak"  # Replace with the actual file path game_patch_3.8.1.19939.pak
+    input_file = "mini_obbzsdic_obb.pak"  # Replace with the actual file path game_patch_3.8.1.19939.pak
 
     # Check if the file exists
     if not os.path.exists(input_file):
