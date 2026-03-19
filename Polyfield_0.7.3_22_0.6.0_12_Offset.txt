@@ -1,0 +1,92 @@
+// NEW Version 0.7.3 22 32bit
+
+// Namespace: 
+public class Weapon : MonoBehaviour
+public void WeaponShoot() { }
+0xA5966C - Отключить Стрельбу
+
+
+// Namespace: 
+public class Weapon : MonoBehaviour
+public void WeaponReload() { }
+0xA5A040 - Отключить Перезярядку
+
+
+// Namespace: 
+public class Weapon : MonoBehaviour
+public int ammo; // 0x88
+public int fireRate; // 0x1C
+
+
+// Namespace: 
+public class Weapon : MonoBehaviour
+private void Update() { }
+0xA590E8
+
+
+// Namespace: 
+public class Grenade : MonoBehaviour
+private void Update() { }
+0xA574AC - Отключить Взрыв Гранат
+
+
+// Namespace: 
+public class NpcManager : NetworkBehaviour
+private void SpawnNpc(int _count, string _team) { }
+0x9C9408 - Отключить Спавн Ботов
+
+
+// Namespace: 
+public class PlayerControl : NetworkBehaviour
+private int health; // 0x60
+public float respawnTimer; // 0x5C
+public float playerSpeed; // 0x80
+
+
+// Namespace: 
+public class PlayerControl : NetworkBehaviour
+private void LateUpdate() { }
+0x9DEA90
+
+
+// Namespace: 
+public class GameManager : NetworkBehaviour
+public int redScore; // 0x94
+public int blueScore; // 0x50
+
+
+// Namespace: 
+public class GameManager : NetworkBehaviour
+private void UpdateScores() { }
+0x97B66C
+
+
+// Namespace: UnityEngine
+public sealed class Camera : Behaviour
+public float get_fieldOfView() { }
+0x208DECC - Weapon Fov
+
+
+// OLD Version 0.6.0 12 32bit
+
+public System.Int32 ammo; // 0x88 - Infinite Ammo (edit 999, update 0x48beac)
+
+public System.Int32 fireRate; // 0x1c - Rapid Fire (edit 999, update 0x4898dc)
+
+public System.Int32 health; // 0x24 - God Mode (edit 99999, update 0x2b9388)
+
+public System.Single respawnTimer; // 0x20 - No Respawn Cooldown (edit -1, update 0x2ad358)
+
+public System.Int32 redScore; // 0x54 - High Red Score (edit 999, update 0x52fad8)
+
+public System.Single get_fieldOfView(); // 0x3f6200 - Weapon Fov
+
+public System.Single playerSpeed; // 0x70 - SpeedHack (update 0x2b952c)
+                     
+         //  32 Bit Hook Update //
+         
+MSHookFunction((void *)getAbsoluteAddress("libil2cpp.so", 0x4898dc), (void *)FirerateUpdateMod, (void **)&old_FirerateUpdate);
+
+         //  64 Bit Hook Update //
+         
+A64HookFunction((void *)getAbsoluteAddress("libil2cpp.so", 0x4898dc), (void *)FirerateUpdateMod, (void **)&old_FirerateUpdate);
